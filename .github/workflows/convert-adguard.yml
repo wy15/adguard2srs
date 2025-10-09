@@ -24,6 +24,8 @@ jobs:
         run: sing-box rule-set convert --type adguard --output adguard-cn.srs filter_29.txt
 
       - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"

@@ -1,0 +1,32 @@
+name: Convert AdGuard Rules
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Daily at midnight UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install sing-box
+        run: curl -fsSL https://sing-box.app/install.sh | sh
+
+      - name: Download filter_29.txt
+        run: curl -o filter_29.txt https://adguardteam.github.io/HostlistsRegistry/assets/filter_29.txt
+
+      - name: Convert to SRS
+        run: sing-box rule-set convert --type adguard --output adguard-cn.srs filter_29.txt
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add adguard-cn.srs
+          git commit -m "Update adguard-cn.srs" || echo "No changes to commit"
+          git push
